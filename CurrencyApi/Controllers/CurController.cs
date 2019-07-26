@@ -14,7 +14,7 @@ namespace CurrencyApi.Controllers
     public class CurController : ControllerBase
     {
         List<Url> urls;
-        private int i = 0;
+        private int i = 1;
         public CurController()
         {
             urls = new List<Url>()
