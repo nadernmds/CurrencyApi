@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace CurrencyApi.Controllers
 {
@@ -10,11 +11,31 @@ namespace CurrencyApi.Controllers
     [ApiController]
     public class ValuesController : ControllerBase
     {
+        private  IMemoryCache _Cache;
+
+        public ValuesController(IMemoryCache cache)
+        {
+            _Cache = cache;
+        }
         // GET api/values
         [HttpGet]
-        public ActionResult<IEnumerable<string>> Get()
+        public ActionResult<string> Get()
         {
-            return new string[] { "value1", "value2" };
+            string date;
+            if (!_Cache.TryGetValue("pep",out date))
+            {
+                if (date==null)
+                {
+                    date = Cashe();
+                }
+                _Cache.Set("pep", date,new DateTimeOffset(DateTime.Now.AddSeconds(10)));
+            }
+            return date;
+        }
+
+        private  string Cashe()
+        {
+            return DateTime.Now.ToString();
         }
 
         // GET api/values/5

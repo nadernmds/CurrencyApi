@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using HtmlAgilityPack;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace CurrencyApi.Controllers
 {
@@ -13,10 +14,11 @@ namespace CurrencyApi.Controllers
     [ApiController]
     public class CurController : ControllerBase
     {
-        List<Url> urls;
-        private int i = 1;
-        public CurController()
+        private  IMemoryCache _Cache;
+
+        public CurController(IMemoryCache cache)
         {
+            this._Cache = cache;
             urls = new List<Url>()
             {
         new Url()   {id=i++, name="gold_18" ,url="http://www.tgju.org/chart/geram18"},
@@ -38,11 +40,21 @@ namespace CurrencyApi.Controllers
         new Url()   {id=i++,name= "menat" ,url="http://www.tgju.org/chart/price_azn" }
             };
         }
-        [ResponseCache(Duration = 60)]
+        List<Url> urls;
+        private int i = 1;
+
         public IActionResult GetCur()
         {
+            List<currency> currencies=new List<currency>();
+            if (!_Cache.TryGetValue("pep",out currencies))
+            {
+                if (currencies == null)
+                {
+                    currencies = FillData();
+                }
+                _Cache.Set("pep", currencies, new DateTimeOffset(DateTime.Now.AddSeconds(120)));
+            }
 
-            var currencies = FillData();
             return Ok(currencies);
         }
 
@@ -106,8 +118,16 @@ namespace CurrencyApi.Controllers
         public IActionResult getCur(int id)
         {
 
-            var s = FillData(id);
-            return Ok(s);
+            List<currency> currencies = new List<currency>();
+            if (!_Cache.TryGetValue("luis", out currencies))
+            {
+                if (currencies == null)
+                {
+                    currencies = FillData(id);
+                }
+                _Cache.Set("luis", currencies, new DateTimeOffset(DateTime.Now.AddSeconds(120)));
+            }
+            return Ok(currencies);
         }
     }
     class Url
