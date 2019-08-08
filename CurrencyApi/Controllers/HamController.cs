@@ -129,7 +129,11 @@ namespace CurrencyApi.Controllers
 
             var div = doc.DocumentNode.SelectNodes("//div[@class='data-container']");
             var list = new List<CarName>();
-
+            //var syss=number.ToString("N0", new System.Globalization.NumberFormatInfo()
+            //{
+            //    NumberGroupSizes = new[] { 3 },
+            //    NumberGroupSeparator = ","
+            //});
             foreach (var item in div)
             {
                 var ssss = item.Descendants("h3").ToList()[0].InnerText;
@@ -153,7 +157,7 @@ namespace CurrencyApi.Controllers
             public string carName { get; set; }
             public string price { get; set; }
             public string url { get; set; }
-
+            public long purePrice { get { return price.toPersianToEnglish(); } }
         }
     }
 }
